@@ -3,21 +3,31 @@
    Selbst-injizierende Navbar mit Burger-Menü-Overlay für alle
    Pauschenwein-Seiten. CSS + HTML + Verhalten in einer Datei.
 
-   Usage:
+   Usage (Standard-Subsite: eigene Menüpunkte in der Bar):
      <div data-pw-navbar
           data-active="bau"
-          data-light-on-top="false"
-          data-immo-href="https://pauschenwein-immobilien.at"
-          data-contact-href="#kontakt"
-          data-karriere-href="https://pauschenwein-gruppe.at/karriere/"
-          data-logo-href="/"></div>
+          data-nav-items='[{"label":"Leistungen","href":"#leistungen"},{"label":"Referenzen","href":"#referenzen"}]'
+          data-contact-href="#kontakt"></div>
      <script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/navbar.js" defer></script>
+
+   Usage (Gruppen-Spezialfall: nur Logo + Immobilien-Quicklink + Burger):
+     <div data-pw-navbar
+          data-active="gruppe"
+          data-immo-show="true"
+          data-light-on-top="true"
+          data-contact-href="#kontakt"></div>
 
    Alle data-Attribute sind optional — sinnvolle Defaults sind gesetzt.
    data-active = einer von: bau | immobilien | wohlfuehlzentrum | med |
                             kosmetik | handel | karriere | gruppe
    data-light-on-top = "true"  → Navbar-Text dunkel solange nicht gescrollt
                                  (für Seiten mit hellem Hero, z.B. Gruppe)
+   data-immo-show   = "true"  → Immobilien-Quicklink in der Bar
+                                 (Default: false → Spezialität der Gruppen-Site)
+   data-nav-items   = JSON-Array [{label, href, external?}, …]
+                                 Eigene Menüpunkte rechts in der Bar (Desktop).
+                                 Auf Mobile via Burger erreichbar (im Menü unter
+                                 den Geschäftsbereichen als „Auf dieser Seite").
    ────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
@@ -38,6 +48,19 @@
 .pw-nav-logo img { height: 46px; width: auto; transition: height 0.4s var(--ease); display: block; }
 .pw-nav.scrolled .pw-nav-logo img { height: 38px; }
 .pw-nav-right { display: flex; align-items: center; gap: 22px; }
+.pw-nav-items { display: flex; align-items: center; gap: 22px; }
+.pw-nav-item {
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em;
+  color: var(--paper); transition: color 0.4s var(--ease); white-space: nowrap;
+  position: relative;
+}
+.pw-nav-item::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s var(--ease);
+}
+.pw-nav-item:hover::after { transform: scaleX(1); transform-origin: left center; }
+.pw-nav-item.is-active { color: var(--muted); }
 .pw-nav-immo {
   display: inline-flex; align-items: center; gap: 7px; font-size: 0.74rem; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
@@ -50,12 +73,17 @@
 .pw-burger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
 .pw-burger.open span:nth-child(2) { opacity: 0; }
 .pw-burger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
-@media (max-width: 940px) { .pw-nav-immo { display: none; } }
+@media (max-width: 940px) {
+  .pw-nav-immo { display: none; }
+  .pw-nav-items { display: none; }
+}
 
 /* ── Light-Mode (Navbar über hellem Hero, nicht gescrollt, Menü zu) ── */
 .pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-nav-logo img { filter: invert(1) brightness(0); }
 .pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-nav-immo { color: rgba(14,18,19,0.7); }
 .pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-nav-immo:hover { color: var(--ink); }
+.pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-nav-item { color: var(--ink); }
+.pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-nav-item.is-active { color: rgba(14,18,19,0.5); }
 .pw-nav.light-on-top:not(.scrolled):not(.menu-open) .pw-burger span { background: var(--ink); }
 
 /* X immer auf weiß sobald Menü offen */
@@ -100,6 +128,22 @@
 .pw-menu-foot .btn.ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.22); }
 .pw-menu-foot .btn.ghost::after { background: #fff; }
 .pw-menu-foot .btn.ghost:hover { color: #0e1213; border-color: #fff; }
+
+/* ── Site-local Nav-Items im Menü (nur Mobile, falls vorhanden) ── */
+.pw-menu-sublabel {
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255,255,255,0.34); margin: 28px 0 14px;
+}
+.pw-menu-sublist { display: flex; flex-direction: column; gap: 4px; }
+.pw-menu-sublist a {
+  color: #fff; font-weight: 300; font-size: clamp(1rem, 2.4vw, 1.2rem);
+  padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.10);
+  transition: padding-left 0.35s var(--ease);
+}
+.pw-menu-sublist a:hover { padding-left: 14px; }
+@media (min-width: 941px) {
+  .pw-menu-sublabel, .pw-menu-sublist { display: none; }
+}
   `;
 
   // Style-Tag nur 1x injizieren
@@ -128,10 +172,19 @@
     const logoHref = cfg.logoHref || '/';
     const logoSrc = cfg.logo || (CDN + '/assets/logo-white.png');
     const immoHref = cfg.immoHref || 'https://pauschenwein-immobilien.at';
-    const showImmo = cfg.immoShow !== 'false' && active !== 'immobilien';
+    // Default: KEIN Immo-Quicklink. Nur die Gruppen-Site setzt data-immo-show="true".
+    const showImmo = cfg.immoShow === 'true' && active !== 'immobilien';
     const contactHref = cfg.contactHref || '#kontakt';
     const karriereHref = cfg.karriereHref || 'https://pauschenwein-gruppe.at/karriere/';
     const isExternal = (h) => /^https?:\/\//.test(h);
+
+    // Site-eigene Nav-Items in der Bar (für alle Subsites außer Gruppe)
+    let navItems = [];
+    if (cfg.navItems) {
+      try { navItems = JSON.parse(cfg.navItems); } catch (e) {
+        console.warn('[pw-navbar] data-nav-items ist kein gültiges JSON:', e);
+      }
+    }
 
     const areaItems = AREAS.map(a => {
       const isActive = a.key === active;
@@ -157,10 +210,27 @@
          </a>`
       : '';
 
+    const navItemsBar = navItems.length
+      ? `<div class="pw-nav-items">${navItems.map(n => {
+          const ext = n.external || isExternal(n.href || '') ? ' target="_blank" rel="noopener"' : '';
+          const cls = n.active ? ' is-active' : '';
+          return `<a href="${n.href || '#'}" class="pw-nav-item${cls}"${ext}>${n.label || ''}</a>`;
+        }).join('')}</div>`
+      : '';
+
+    const navItemsMenu = navItems.length
+      ? `<p class="pw-menu-sublabel">Auf dieser Seite</p>
+         <div class="pw-menu-sublist">${navItems.map(n => {
+            const ext = n.external || isExternal(n.href || '') ? ' target="_blank" rel="noopener"' : '';
+            return `<a href="${n.href || '#'}"${ext}>${n.label || ''}</a>`;
+          }).join('')}</div>`
+      : '';
+
     container.innerHTML = `
 <nav class="pw-nav${lightOnTop ? ' light-on-top' : ''}" id="pw-nav" aria-label="Hauptnavigation">
   <a href="${logoHref}" class="pw-nav-logo" aria-label="Pauschenwein"><img src="${logoSrc}" alt="Pauschenwein"></a>
   <div class="pw-nav-right">
+    ${navItemsBar}
     ${immoBtn}
     <button class="pw-burger" id="pw-burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
   </div>
@@ -168,6 +238,7 @@
 <div class="pw-menu" id="pw-menu" role="navigation" aria-label="Hauptmenü">
   <p class="pw-menu-label">Geschäftsbereiche</p>
   <div class="pw-menu-list">${areaItems}${karriereItem}</div>
+  ${navItemsMenu}
   <div class="pw-menu-foot">
     <a href="${contactHref}" class="btn" data-pw-close><span>Kontakt aufnehmen</span><svg class="arr" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
   </div>

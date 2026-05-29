@@ -13,14 +13,28 @@ Im `<head>` einer Seite:
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/tokens.css">
 ```
 
-Am Anfang des `<body>` (für die Navbar):
+Am Anfang des `<body>` (für die Navbar) — **Standard-Subsite** mit eigenen Menüpunkten:
+
+```html
+<div data-pw-navbar
+     data-active="bau"
+     data-nav-items='[
+       {"label":"Leistungen","href":"#leistungen"},
+       {"label":"Referenzen","href":"#referenzen"},
+       {"label":"Über uns","href":"#ueber-uns"}
+     ]'
+     data-contact-href="#kontakt"></div>
+<script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/navbar.js" defer></script>
+```
+
+**Gruppen-Spezialfall** (minimal: nur Logo + Immobilien-Quicklink + Burger):
 
 ```html
 <div data-pw-navbar
      data-active="gruppe"
-     data-contact-href="#kontakt"
-     data-light-on-top="true"></div>
-<script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/navbar.js" defer></script>
+     data-immo-show="true"
+     data-light-on-top="true"
+     data-contact-href="#kontakt"></div>
 ```
 
 Am Ende des `<body>` (für den Footer):
@@ -61,7 +75,8 @@ Vollständig selbst-injizierend. Lädt CSS, rendert HTML, bindet Verhalten (Scro
 | `data-active` | — | Markiert aktuellen Bereich: `bau`, `immobilien`, `wohlfuehlzentrum`, `med`, `kosmetik`, `handel`, `karriere`, `gruppe` |
 | `data-light-on-top` | `false` | `true` → Navbar-Text dunkel solange nicht gescrollt (für Seiten mit hellem Hero) |
 | `data-immo-href` | `https://pauschenwein-immobilien.at` | Ziel des Immobilien-Quicklinks |
-| `data-immo-show` | `true` (`false` auf Immo-Seite selbst) | Immobilien-Link in der Navbar anzeigen |
+| `data-immo-show` | `false` | Immobilien-Quicklink in der Bar zeigen. **Nur die Gruppen-Site setzt `true`** — alle anderen Subsites verwenden stattdessen `data-nav-items`. |
+| `data-nav-items` | `[]` | JSON-Array `[{label, href, external?, active?}, …]` mit Site-eigenen Menüpunkten in der Bar (Desktop). Auf Mobile via Burger erreichbar (Sektion „Auf dieser Seite"). |
 | `data-contact-href` | `#kontakt` | Ziel des „Kontakt aufnehmen"-Buttons im Menü-Footer |
 | `data-karriere-href` | `https://pauschenwein-gruppe.at/karriere/` | Ziel des Karriere-Menüpunkts |
 | `data-logo-href` | `/` | Logo-Klick-Ziel |
