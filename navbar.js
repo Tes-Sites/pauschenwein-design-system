@@ -28,6 +28,10 @@
                                  Eigene Menüpunkte rechts in der Bar (Desktop).
                                  Auf Mobile via Burger erreichbar (im Menü unter
                                  den Geschäftsbereichen als „Auf dieser Seite").
+   data-karriere-show = "false" → Karriere-Eintrag in „Weiteres" ausblenden (Default: true)
+   data-karriere-href = URL des Karriere-Bereichs (Default: gruppen-Karriereseite)
+   data-news-show    = "false" → News-Eintrag in „Weiteres" ausblenden (Default: true)
+   data-news-href    = URL des News-Bereichs (Default: gruppen-News-Seite)
    ────────────────────────────────────────────────────────────────────── */
 (function () {
   'use strict';
@@ -121,6 +125,26 @@
 .pw-menu-name em { font-style: normal; color: rgba(255,255,255,0.52); transition: color 0.4s var(--ease); }
 .pw-menu-list a:hover .pw-menu-name em { color: #fff; }
 .pw-menu-ext { margin-left: auto; align-self: center; width: 16px; height: 16px; stroke: rgba(255,255,255,0.34); fill: none; stroke-width: 1.6; }
+/* ── Weiteres-Sektion (Karriere, News … abgetrennt von Geschäftsbereichen) ── */
+.pw-menu-extra { margin-top: clamp(28px,4.5vh,48px); padding-top: clamp(18px,3vh,30px); border-top: 1px solid rgba(255,255,255,0.10); }
+.pw-menu-extra-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.34); margin-bottom: clamp(12px,1.8vh,22px); }
+.pw-menu-extra-list { display: flex; flex-direction: column; }
+.pw-menu-extra-list a {
+  display: flex; align-items: baseline; gap: 18px; padding: clamp(5px,0.9vh,11px) 0;
+  color: #fff; font-weight: 300; letter-spacing: -0.01em;
+  font-size: clamp(1.1rem, 2.4vw, 1.55rem); line-height: 1.2;
+  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), padding-left 0.35s var(--ease), color 0.3s var(--ease);
+  opacity: 0; transform: translateY(20px);
+}
+.pw-menu.open .pw-menu-extra-list a { opacity: 1; transform: none; }
+.pw-menu.open .pw-menu-extra-list a:nth-child(1) { transition-delay: 0.60s, 0.60s, 0s, 0s; }
+.pw-menu.open .pw-menu-extra-list a:nth-child(2) { transition-delay: 0.66s, 0.66s, 0s, 0s; }
+.pw-menu.open .pw-menu-extra-list a:nth-child(3) { transition-delay: 0.72s, 0.72s, 0s, 0s; }
+.pw-menu-extra-list a:hover { padding-left: 14px; }
+.pw-menu-extra-list a.is-active { color: rgba(255,255,255,0.34); pointer-events: none; }
+.pw-menu-extra-arrow { margin-left: auto; align-self: center; width: 14px; height: 14px; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 1.6; transition: stroke 0.4s var(--ease), transform 0.4s var(--ease); }
+.pw-menu-extra-list a:hover .pw-menu-extra-arrow { stroke: #fff; transform: translateX(4px); }
+
 .pw-menu-foot { margin-top: clamp(28px,5vh,56px); display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .pw-menu-foot .btn { background: #fff; color: #0e1213; border-color: #fff; }
 .pw-menu-foot .btn::after { background: #0e1213; }
@@ -176,6 +200,9 @@
     const showImmo = cfg.immoShow === 'true' && active !== 'immobilien';
     const contactHref = cfg.contactHref || '#kontakt';
     const karriereHref = cfg.karriereHref || 'https://pauschenwein-gruppe.at/karriere/';
+    const karriereShow = cfg.karriereShow !== 'false';
+    const newsHref = cfg.newsHref || 'https://pauschenwein-gruppe.at/news/';
+    const newsShow = cfg.newsShow !== 'false';
     const isExternal = (h) => /^https?:\/\//.test(h);
 
     // Site-eigene Nav-Items in der Bar (für alle Subsites außer Gruppe)
@@ -196,13 +223,23 @@
       </a>`;
     }).join('');
 
-    const karriereActive = active === 'karriere';
-    const karriereExt = isExternal(karriereHref) ? ' target="_blank" rel="noopener"' : '';
-    const karriereItem = `<a href="${karriereHref}"${karriereExt}${karriereActive ? ' class="is-active" aria-current="page"' : ''}>
-      <span class="pw-menu-num">07</span>
-      <span class="pw-menu-name"><em>Karriere</em></span>
-      <svg class="pw-menu-ext" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </a>`;
+    // Weiteres-Sektion (Karriere, News) — visuell abgetrennt von den Geschäftsbereichen
+    const extraEntries = [];
+    if (karriereShow) extraEntries.push({ key: 'karriere', label: 'Karriere', href: karriereHref });
+    if (newsShow) extraEntries.push({ key: 'news', label: 'News', href: newsHref });
+
+    const extraSection = extraEntries.length ? `
+      <div class="pw-menu-extra">
+        <p class="pw-menu-extra-label">Weiteres</p>
+        <div class="pw-menu-extra-list">${extraEntries.map(e => {
+          const isAct = e.key === active;
+          const ext = isExternal(e.href) ? ' target="_blank" rel="noopener"' : '';
+          return `<a href="${e.href}"${ext}${isAct ? ' class="is-active" aria-current="page"' : ''}>
+            <span>${e.label}</span>
+            <svg class="pw-menu-extra-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>`;
+        }).join('')}</div>
+      </div>` : '';
 
     const immoBtn = showImmo
       ? `<a href="${immoHref}" class="pw-nav-immo" target="_blank" rel="noopener">Immobilien
@@ -237,7 +274,8 @@
 </nav>
 <div class="pw-menu" id="pw-menu" role="navigation" aria-label="Hauptmenü">
   <p class="pw-menu-label">Geschäftsbereiche</p>
-  <div class="pw-menu-list">${areaItems}${karriereItem}</div>
+  <div class="pw-menu-list">${areaItems}</div>
+  ${extraSection}
   ${navItemsMenu}
   <div class="pw-menu-foot">
     <a href="${contactHref}" class="btn" data-pw-close><span>Kontakt aufnehmen</span><svg class="arr" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
