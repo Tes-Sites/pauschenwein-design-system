@@ -97,15 +97,19 @@
 .pw-menu {
   position: fixed; inset: 0; z-index: 99; background: #0e1213; color: #fff;
   display: flex; flex-direction: column; justify-content: center;
-  padding: var(--nav-h) var(--pad-x) 40px;
+  padding: calc(var(--nav-h) + clamp(8px,2vh,28px)) var(--pad-x) clamp(20px,3vh,40px);
   clip-path: inset(0 0 100% 0); transition: clip-path 0.7s var(--ease);
-  pointer-events: none;
+  pointer-events: none; overflow-y: auto;
+}
+/* Wenn Inhalt höher als Viewport: oben verankern statt zentrieren (verhindert Überlappung mit Navbar) */
+@media (max-height: 900px) {
+  .pw-menu { justify-content: flex-start; }
 }
 .pw-menu.open { clip-path: inset(0 0 0 0); pointer-events: auto; }
-.pw-menu-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.34); margin-bottom: 28px; }
+.pw-menu-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.34); margin-bottom: clamp(12px,2vh,28px); }
 .pw-menu-list { display: flex; flex-direction: column; }
 .pw-menu-list a {
-  display: flex; align-items: baseline; gap: 18px; padding: clamp(8px,1.6vh,18px) 0;
+  display: flex; align-items: baseline; gap: 18px; padding: clamp(5px,1.2vh,18px) 0;
   border-top: 1px solid rgba(255,255,255,0.10); color: #fff;
   transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), padding-left 0.35s var(--ease);
   opacity: 0; transform: translateY(20px);
@@ -121,18 +125,18 @@
 .pw-menu-list a:hover { padding-left: 18px; }
 .pw-menu-list a.is-active { color: rgba(255,255,255,0.34); pointer-events: none; }
 .pw-menu-num { font-size: 0.8rem; font-weight: 400; color: rgba(255,255,255,0.34); min-width: 34px; }
-.pw-menu-name { font-weight: 300; letter-spacing: -0.02em; font-size: clamp(1.8rem, 5vw, 3.4rem); line-height: 1.1; }
+.pw-menu-name { font-weight: 300; letter-spacing: -0.02em; font-size: clamp(1.4rem, min(4.5vw, 5.5vh), 3.4rem); line-height: 1.1; }
 .pw-menu-name em { font-style: normal; color: rgba(255,255,255,0.52); transition: color 0.4s var(--ease); }
 .pw-menu-list a:hover .pw-menu-name em { color: #fff; }
 .pw-menu-ext { margin-left: auto; align-self: center; width: 16px; height: 16px; stroke: rgba(255,255,255,0.34); fill: none; stroke-width: 1.6; }
 /* ── Weiteres-Sektion (Karriere, News … abgetrennt von Geschäftsbereichen) ── */
-.pw-menu-extra { margin-top: clamp(28px,4.5vh,48px); padding-top: clamp(18px,3vh,30px); border-top: 1px solid rgba(255,255,255,0.10); }
-.pw-menu-extra-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.34); margin-bottom: clamp(12px,1.8vh,22px); }
+.pw-menu-extra { margin-top: clamp(16px,3vh,48px); padding-top: clamp(12px,2vh,30px); border-top: 1px solid rgba(255,255,255,0.10); }
+.pw-menu-extra-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.34); margin-bottom: clamp(8px,1.4vh,22px); }
 .pw-menu-extra-list { display: flex; flex-direction: column; }
 .pw-menu-extra-list a {
-  display: flex; align-items: baseline; gap: 18px; padding: clamp(5px,0.9vh,11px) 0;
+  display: flex; align-items: baseline; gap: 18px; padding: clamp(4px,0.7vh,11px) 0;
   color: #fff; font-weight: 300; letter-spacing: -0.01em;
-  font-size: clamp(1.1rem, 2.4vw, 1.55rem); line-height: 1.2;
+  font-size: clamp(1rem, min(2.2vw, 2.6vh), 1.55rem); line-height: 1.2;
   transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), padding-left 0.35s var(--ease), color 0.3s var(--ease);
   opacity: 0; transform: translateY(20px);
 }
@@ -145,7 +149,7 @@
 .pw-menu-extra-arrow { margin-left: auto; align-self: center; width: 14px; height: 14px; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 1.6; transition: stroke 0.4s var(--ease), transform 0.4s var(--ease); }
 .pw-menu-extra-list a:hover .pw-menu-extra-arrow { stroke: #fff; transform: translateX(4px); }
 
-.pw-menu-foot { margin-top: clamp(28px,5vh,56px); display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
+.pw-menu-foot { margin-top: clamp(16px,3vh,56px); display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 .pw-menu-foot .btn { background: #fff; color: #0e1213; border-color: #fff; }
 .pw-menu-foot .btn::after { background: #0e1213; }
 .pw-menu-foot .btn:hover { color: #fff; border-color: #fff; }
