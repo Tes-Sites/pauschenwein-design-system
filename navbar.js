@@ -313,9 +313,216 @@
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
   }
 
+  /* ─────────────────────────────────────────────────────────────────────
+     VARIANT 2 · "inline" — Desktop hat die Menüpunkte direkt in der Bar
+     (kein Burger auf Desktop), Mobile öffnet einen schlanken Overlay
+     ausschließlich mit den site-lokalen Links (keine Geschäftsbereiche).
+
+     Use:
+       <div data-pw-navbar-inline
+            data-logo-text="Dr. Anna Pauschenwein"
+            data-light-on-top="true"
+            data-nav-items='[{"label":"Über mich","href":"#ueber-mich"}, …]'
+            data-cta-label="Kontakt"
+            data-cta-href="#kontakt"
+            data-menu-invert="true"></div>
+
+     Optional:
+       data-logo            URL zum Bild-Logo (statt data-logo-text)
+       data-logo-href       Link-Ziel des Logos (Default: "/")
+       data-active          Für aria-current Markierung im Menü
+       data-menu-invert     "true" → Overlay weiß statt Ink (med-Look)
+     ───────────────────────────────────────────────────────────────────── */
+  const CSS_INLINE = `
+.pw-navi {
+  position: fixed; inset: 0 0 auto 0; z-index: 100; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--pad-x); gap: 24px;
+  background: transparent; border-bottom: 1px solid transparent;
+  transition: background 0.5s var(--ease), border-color 0.5s ease, height 0.4s var(--ease);
+}
+.pw-navi.scrolled { height: 70px; background: rgba(14,18,19,0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+.pw-navi-logo { flex-shrink: 0; display: inline-flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
+.pw-navi-logo img { height: 46px; width: auto; transition: height 0.4s var(--ease), filter 0.5s var(--ease); display: block; }
+.pw-navi.scrolled .pw-navi-logo img { height: 38px; }
+.pw-navi-logo-text { font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; font-size: 0.95rem; color: #fff; transition: color 0.5s var(--ease); white-space: nowrap; }
+.pw-navi.scrolled .pw-navi-logo-text { font-size: 0.85rem; }
+.pw-navi-right { display: flex; align-items: center; gap: 36px; }
+.pw-navi-items { display: flex; align-items: center; gap: 30px; }
+.pw-navi-items a {
+  font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: rgba(255,255,255,0.82); transition: color 0.4s var(--ease); white-space: nowrap;
+  position: relative; text-decoration: none;
+}
+.pw-navi-items a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right center; transition: transform 0.4s var(--ease); }
+.pw-navi-items a:hover::after { transform: scaleX(1); transform-origin: left center; }
+.pw-navi-items a.is-active { color: rgba(255,255,255,0.5); }
+.pw-navi-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 0.78rem 1.5rem; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #0e1213; border: 1px solid #ffffff;
+  background: #ffffff; border-radius: 0;
+  transition: color 0.4s var(--ease), background 0.4s var(--ease), border-color 0.4s var(--ease);
+  text-decoration: none; white-space: nowrap;
+}
+.pw-navi-cta:hover { background: transparent; color: #ffffff; }
+.pw-navi-burger { display: none; flex-direction: column; gap: 6px; background: none; border: none; cursor: pointer; padding: 6px; }
+.pw-navi-burger span { display: block; width: 26px; height: 1.5px; background: #fff; transition: transform 0.4s var(--ease), opacity 0.3s, background 0.4s var(--ease); }
+.pw-navi-burger.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.pw-navi-burger.open span:nth-child(2) { opacity: 0; }
+.pw-navi-burger.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+/* ── Light-on-top: bei Scroll 0 dunkler Text auf hellem Hero ── */
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-logo img { filter: invert(1) brightness(0); }
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-logo-text { color: #0e1213; }
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-items a { color: rgba(14,18,19,0.78); }
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-items a:hover { color: #0e1213; }
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-burger span { background: #0e1213; }
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-cta {
+  color: #ffffff; background: #0e1213; border-color: #0e1213;
+}
+.pw-navi.light-on-top:not(.scrolled):not(.menu-open) .pw-navi-cta:hover {
+  background: transparent; color: #0e1213;
+}
+
+@media (max-width: 900px) {
+  .pw-navi-items, .pw-navi-cta { display: none; }
+  .pw-navi-burger { display: flex; }
+}
+
+/* ── Mobile Overlay-Menü (Standard: ink-bg, weiß-Text) ── */
+.pw-navi-menu {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #0e1213; z-index: 99;
+  padding: calc(var(--nav-h) + 32px) var(--pad-x) 40px;
+  display: flex; flex-direction: column; overflow-y: auto;
+  visibility: hidden; opacity: 0; pointer-events: none;
+  transition: opacity 0.28s var(--ease), visibility 0.28s var(--ease);
+}
+.pw-navi-menu.open { visibility: visible; opacity: 1; pointer-events: auto; }
+.pw-navi-menu-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 14px; }
+.pw-navi-menu-list { display: flex; flex-direction: column; margin-bottom: 36px; }
+.pw-navi-menu-list a {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 1.4rem; font-weight: 300; letter-spacing: -0.01em;
+  color: #fff; text-decoration: none;
+  padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.10);
+  transition: padding-left 0.35s var(--ease), color 0.3s var(--ease);
+  opacity: 0; transform: translateY(12px);
+}
+.pw-navi-menu.open .pw-navi-menu-list a { opacity: 1; transform: none; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease), padding-left 0.35s var(--ease); }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(1) { transition-delay: 0.10s; }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(2) { transition-delay: 0.16s; }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(3) { transition-delay: 0.22s; }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(4) { transition-delay: 0.28s; }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(5) { transition-delay: 0.34s; }
+.pw-navi-menu.open .pw-navi-menu-list a:nth-child(6) { transition-delay: 0.40s; }
+.pw-navi-menu-list a:hover { padding-left: 10px; }
+.pw-navi-menu-foot { margin-top: auto; }
+.pw-navi-menu-foot a {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 0.9rem 1.6rem; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #0e1213; background: #fff; border: 1px solid #fff;
+  text-decoration: none; transition: background 0.4s var(--ease), color 0.4s var(--ease);
+}
+.pw-navi-menu-foot a:hover { background: transparent; color: #fff; }
+
+/* ── Menu-Invert: weiß-bg + dunkle Schrift (med-Look) ── */
+.pw-navi-menu.invert { background: #ffffff; }
+.pw-navi-menu.invert .pw-navi-menu-label { color: rgba(14,18,19,0.5); }
+.pw-navi-menu.invert .pw-navi-menu-list a { color: #0e1213; border-bottom-color: rgba(14,18,19,0.10); }
+.pw-navi-menu.invert .pw-navi-menu-foot a { background: #0e1213; color: #fff; border-color: #0e1213; }
+.pw-navi-menu.invert .pw-navi-menu-foot a:hover { background: transparent; color: #0e1213; }
+/* Burger-X folgt der Hintergrundfarbe: bei invert dunkel, sonst weiß */
+.pw-navi.menu-open.menu-invert .pw-navi-burger span { background: #0e1213 !important; }
+.pw-navi.menu-open:not(.menu-invert) .pw-navi-burger span { background: #ffffff !important; }
+`;
+
+  if (!document.getElementById('pw-nav-inline-style')) {
+    const styleI = document.createElement('style');
+    styleI.id = 'pw-nav-inline-style';
+    styleI.textContent = CSS_INLINE;
+    document.head.appendChild(styleI);
+  }
+
+  function renderInline(container) {
+    const cfg = container.dataset;
+    const lightOnTop = cfg.lightOnTop === 'true';
+    const menuInvert = cfg.menuInvert === 'true';
+    const logoHref = cfg.logoHref || '/';
+    const logoText = cfg.logoText || '';
+    const logoSrc = cfg.logo || '';
+    const ctaLabel = cfg.ctaLabel || 'Kontakt';
+    const ctaHref = cfg.ctaHref || cfg.contactHref || '#kontakt';
+    const isExternal = (h) => /^https?:\/\//.test(h);
+
+    let navItems = [];
+    if (cfg.navItems) {
+      try { navItems = JSON.parse(cfg.navItems); } catch (e) {
+        console.warn('[pw-navbar-inline] data-nav-items ist kein gültiges JSON:', e);
+      }
+    }
+
+    const logoInner = logoSrc
+      ? `<img src="${logoSrc}" alt="${logoText || 'Pauschenwein'}">`
+      : `<span class="pw-navi-logo-text">${logoText}</span>`;
+
+    const navItemsHTML = navItems.map(n => {
+      const ext = n.external || isExternal(n.href || '') ? ' target="_blank" rel="noopener"' : '';
+      const cls = n.active ? ' class="is-active"' : '';
+      return `<a href="${n.href || '#'}"${cls}${ext}>${n.label || ''}</a>`;
+    }).join('');
+
+    const menuItemsHTML = navItems.map(n => {
+      const ext = n.external || isExternal(n.href || '') ? ' target="_blank" rel="noopener"' : '';
+      return `<a href="${n.href || '#'}"${ext}>${n.label || ''}</a>`;
+    }).join('');
+
+    const ctaExt = isExternal(ctaHref) ? ' target="_blank" rel="noopener"' : '';
+
+    container.innerHTML = `
+<nav class="pw-navi${lightOnTop ? ' light-on-top' : ''}${menuInvert ? ' menu-invert' : ''}" aria-label="Hauptnavigation">
+  <a href="${logoHref}" class="pw-navi-logo" aria-label="Startseite">${logoInner}</a>
+  <div class="pw-navi-right">
+    ${navItemsHTML ? `<div class="pw-navi-items">${navItemsHTML}</div>` : ''}
+    <a href="${ctaHref}" class="pw-navi-cta"${ctaExt}>${ctaLabel}</a>
+    <button class="pw-navi-burger" aria-label="Menü" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="pw-navi-menu${menuInvert ? ' invert' : ''}" role="navigation" aria-label="Hauptmenü">
+  <p class="pw-navi-menu-label">Navigation</p>
+  <div class="pw-navi-menu-list">${menuItemsHTML}</div>
+  <div class="pw-navi-menu-foot">
+    <a href="${ctaHref}"${ctaExt}>${ctaLabel}</a>
+  </div>
+</div>`;
+
+    const nav = container.querySelector('.pw-navi');
+    const burger = container.querySelector('.pw-navi-burger');
+    const menu = container.querySelector('.pw-navi-menu');
+
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 30);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    const setMenu = (open) => {
+      menu.classList.toggle('open', open);
+      burger.classList.toggle('open', open);
+      nav.classList.toggle('menu-open', open);
+      burger.setAttribute('aria-expanded', String(open));
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+    burger.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
+  }
+
   // Alle Container auf der Seite rendern
   function init() {
     document.querySelectorAll('[data-pw-navbar]').forEach(render);
+    document.querySelectorAll('[data-pw-navbar-inline]').forEach(renderInline);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
