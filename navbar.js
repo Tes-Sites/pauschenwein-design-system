@@ -96,13 +96,15 @@
 /* ── Overlay-Menü ── */
 .pw-menu {
   position: fixed; inset: 0; z-index: 99; background: #0e1213; color: #fff;
-  display: flex; flex-direction: column; justify-content: center;
+  display: flex; flex-direction: column;
+  /* safe center: zentriert nur wenn Inhalt passt; sonst flex-start (kein Überlappen mit Navbar) */
+  justify-content: safe center;
   padding: calc(var(--nav-h) + clamp(8px,2vh,28px)) var(--pad-x) clamp(20px,3vh,40px);
   clip-path: inset(0 0 100% 0); transition: clip-path 0.7s var(--ease);
   pointer-events: none; overflow-y: auto;
 }
-/* Wenn Inhalt höher als Viewport: oben verankern statt zentrieren (verhindert Überlappung mit Navbar) */
-@media (max-height: 900px) {
+/* Fallback für Browser ohne safe-Keyword: bei knappen Viewports erzwungen oben verankern */
+@media (max-height: 1100px) {
   .pw-menu { justify-content: flex-start; }
 }
 .pw-menu.open { clip-path: inset(0 0 0 0); pointer-events: auto; }
