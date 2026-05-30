@@ -188,7 +188,7 @@
   const AREAS = [
     { key: 'bau',              num: '01', label: 'Pauschenwein <em>Bau</em>',         href: 'https://pauschenwein-bau.at' },
     { key: 'immobilien',       num: '02', label: 'Pauschenwein <em>Immobilien</em>',  href: 'https://pauschenwein-immobilien.at' },
-    { key: 'wohlfuehlzentrum', num: '03', label: '<em>Wohlfühlzentrum</em>',           href: 'https://pauschenwein-wohlfuehlzentrum.at' },
+    { key: 'wohlfuehlzentrum', num: '03', label: 'Pauschenwein <em>Wohlfühlzentrum</em>', href: 'https://pauschenwein-wohlfuehlzentrum.at' },
     { key: 'med',              num: '04', label: 'Pauschenwein <em>Med</em>',          href: 'https://pauschenwein-med.at' },
     { key: 'kosmetik',         num: '05', label: 'Pauschenwein <em>Kosmetik</em>',     href: 'https://pauschenwein-kosmetik.at' },
     { key: 'handel',           num: '06', label: 'Pauschenwein <em>Handel</em>',       href: 'https://pauschenwein-handel.at' }
