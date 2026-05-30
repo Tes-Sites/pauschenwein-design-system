@@ -438,6 +438,9 @@
 /* Burger-X folgt der Hintergrundfarbe: bei invert dunkel, sonst weiß */
 .pw-navi.menu-open.menu-invert .pw-navi-burger span { background: #0e1213 !important; }
 .pw-navi.menu-open:not(.menu-invert) .pw-navi-burger span { background: #ffffff !important; }
+/* Bei offenem Menü übernimmt das Overlay den Hintergrund — Navbar selbst transparent
+   damit der Streifen nicht gegen die Overlay-Farbe arbeitet */
+.pw-navi.menu-open { background: transparent !important; border-bottom-color: transparent !important; }
 `;
 
   if (!document.getElementById('pw-nav-inline-style')) {
