@@ -128,7 +128,8 @@
 .pw-menu-list a.is-active { color: rgba(255,255,255,0.34); pointer-events: none; }
 .pw-menu-num { font-size: 0.8rem; font-weight: 400; color: rgba(255,255,255,0.34); min-width: 34px; }
 .pw-menu-name { font-weight: 300; letter-spacing: -0.02em; font-size: clamp(1.4rem, min(4.5vw, 5.5vh), 3.4rem); line-height: 1.1; }
-.pw-menu-name em { font-style: normal; color: rgba(255,255,255,0.52); transition: color 0.4s var(--ease); }
+.pw-menu-name b { font-weight: 700; }
+.pw-menu-name em { font-style: normal; font-weight: 300; color: rgba(255,255,255,0.52); transition: color 0.4s var(--ease); }
 .pw-menu-list a:hover .pw-menu-name em { color: #fff; }
 .pw-menu-ext { margin-left: auto; align-self: center; width: 16px; height: 16px; stroke: rgba(255,255,255,0.34); fill: none; stroke-width: 1.6; }
 /* ── Weiteres-Sektion (Karriere, News … abgetrennt von Geschäftsbereichen) ── */
@@ -186,12 +187,12 @@
 
   // ───────── Menü-Datenstruktur ─────────
   const AREAS = [
-    { key: 'bau',              num: '01', label: 'Pauschenwein <em>Bau</em>',         href: 'https://pauschenwein-bau.at' },
-    { key: 'immobilien',       num: '02', label: 'Pauschenwein <em>Immobilien</em>',  href: 'https://pauschenwein-immobilien.at' },
-    { key: 'wohlfuehlzentrum', num: '03', label: 'Pauschenwein <em>Wohlfühlzentrum</em>', href: 'https://pauschenwein-wohlfuehlzentrum.at' },
-    { key: 'med',              num: '04', label: 'Pauschenwein <em>Med</em>',          href: 'https://pauschenwein-med.at' },
-    { key: 'kosmetik',         num: '05', label: 'Pauschenwein <em>Kosmetik</em>',     href: 'https://pauschenwein-kosmetik.at' },
-    { key: 'handel',           num: '06', label: 'Pauschenwein <em>Handel</em>',       href: 'https://pauschenwein-handel.at' }
+    { key: 'bau',              num: '01', label: '<b>PAUSCHENWEIN</b> <em>bau</em>',         href: 'https://pauschenwein-bau.at' },
+    { key: 'immobilien',       num: '02', label: '<b>PAUSCHENWEIN</b> <em>immobilien</em>',  href: 'https://pauschenwein-immobilien.at' },
+    { key: 'wohlfuehlzentrum', num: '03', label: '<b>PAUSCHENWEIN</b> <em>wohlfühlzentrum</em>', href: 'https://pauschenwein-wohlfuehlzentrum.at' },
+    { key: 'med',              num: '04', label: '<b>PAUSCHENWEIN</b> <em>med</em>',          href: 'https://pauschenwein-med.at' },
+    { key: 'kosmetik',         num: '05', label: '<b>PAUSCHENWEIN</b> <em>kosmetik</em>',     href: 'https://pauschenwein-kosmetik.at' },
+    { key: 'handel',           num: '06', label: '<b>PAUSCHENWEIN</b> <em>handel</em>',       href: 'https://pauschenwein-handel.at' }
   ];
 
   // ───────── Container rendern ─────────
