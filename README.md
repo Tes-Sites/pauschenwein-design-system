@@ -37,7 +37,7 @@ Am Anfang des `<body>` (für die Navbar) — **Standard-Subsite** mit eigenen Me
      data-contact-href="#kontakt"></div>
 ```
 
-Am Ende des `<body>` (für den Footer):
+Am Ende des `<body>` (für den Footer + Smooth-Scroll):
 
 ```html
 <div data-pw-footer
@@ -47,7 +47,12 @@ Am Ende des `<body>` (für den Footer):
      data-address="8511 St. Stefan ob Stainz 16,<br>Weststeiermark"
      data-back-href="https://pauschenwein-gruppe.at"></div>
 <script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/footer.js" defer></script>
+
+<!-- Smooth-Scroll (Standard auf allen Pauschenwein-Seiten) -->
+<script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/smooth-scroll.js" defer></script>
 ```
+
+> **Wichtig:** `smooth-scroll.js` ist der **verbindliche Standard** für alle Pauschenwein-Seiten. Bitte nicht weglassen — die Sites sollen sich konsistent anfühlen. Wenn eine Seite bereits eine eigene Lenis-Initialisierung hat, ist diese ersatzlos zu entfernen und durch das Design-System-Skript zu ersetzen. Auch die CSS-Regel `html { scroll-behavior: smooth }` ist zu entfernen — Lenis übernimmt das.
 
 ## Komponenten
 
@@ -111,6 +116,24 @@ Vollständig selbst-injizierend mit Cursor-folgender Hover-Animation auf der Wor
 ```html
 data-nav-links='[{"label":"Leistungen","href":"#leistungen"},{"label":"Projekte","href":"#projekte"}]'
 ```
+
+### `smooth-scroll.js` — Lenis-Wrapper (Standard auf allen Sites)
+
+Lädt [Lenis](https://github.com/darkroomengineering/lenis) dynamisch nach und initialisiert smoothes Scrolling mit den projektweiten Defaults:
+
+- `duration: 1.15`, `lerp: 0.1`, ease-out-Exponential — gleicher Charakter auf allen Pauschenwein-Sites.
+- `smoothWheel: true` (Mausrad smooth), Touch bleibt nativ.
+- Bindet automatisch alle `a[href^="#"]`-Anker an `lenis.scrollTo()` mit `-70 px` Nav-Offset.
+- Respektiert `prefers-reduced-motion` (kein Smooth, nur native Anker).
+- Re-bindet nach 400 ms + 1200 ms, damit auch Anker in später injizierter Navbar/Footer erfasst werden.
+
+**Keine Konfiguration nötig** — einfach einbinden:
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/smooth-scroll.js" defer></script>
+```
+
+**Wenn eine Seite eigene Lenis-Logik hat:** entfernen und durch das Design-System-Skript ersetzen. Doppelte Lenis-Instanzen kämpfen gegeneinander.
 
 ## Versioning
 
