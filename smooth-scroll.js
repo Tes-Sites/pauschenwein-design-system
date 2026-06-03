@@ -1,0 +1,87 @@
+/* ─────────────────────────────────────────────────────────────
+ * Pauschenwein Design-System · Smooth Scroll
+ * Lädt Lenis (https://github.com/darkroomengineering/lenis) und
+ * aktiviert smoothes Scrollen + smoothes Anker-Klick-Verhalten.
+ * Standard auf allen Pauschenwein-Seiten.
+ *
+ * Einbindung (am Ende des <body>, defer ist okay):
+ *   <script src="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/smooth-scroll.js" defer></script>
+ *
+ * Respektiert prefers-reduced-motion (kein Smooth-Scroll).
+ * ───────────────────────────────────────────────────────────── */
+(function () {
+  if (window.__pwSmoothScrollInit) return;
+  window.__pwSmoothScrollInit = true;
+
+  // 1) Lenis-Pflicht-CSS — damit nichts gegen Lenis kämpft
+  const css = `
+    html.lenis, html.lenis body { height: auto; }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+    .lenis.lenis-stopped { overflow: hidden; }
+  `;
+  const style = document.createElement('style');
+  style.setAttribute('data-pw-smooth-scroll', '');
+  style.textContent = css;
+  document.head.appendChild(style);
+
+  // 2) Lenis dynamisch laden, dann initialisieren
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NAV_OFFSET = 70;
+
+  function bindAnchors(lenis) {
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      if (a.__pwSmoothBound) return;
+      a.__pwSmoothBound = true;
+      a.addEventListener('click', function (e) {
+        const id = this.getAttribute('href');
+        if (!id || id === '#') return;
+        const t = document.querySelector(id);
+        if (!t) return;
+        e.preventDefault();
+        if (lenis) {
+          lenis.scrollTo(t, { offset: -NAV_OFFSET, duration: 1.25 });
+        } else {
+          const y = t.getBoundingClientRect().top + scrollY - NAV_OFFSET;
+          scrollTo({ top: y, behavior: 'smooth' });
+        }
+      });
+    });
+  }
+
+  function init() {
+    let lenis = null;
+    if (!reduceMotion && typeof Lenis !== 'undefined') {
+      lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        lerp: 0.1
+      });
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+      window.__pwLenis = lenis;
+    }
+    bindAnchors(lenis);
+    // Nach kurzer Verzögerung re-binden (für Anker in Navbar/Footer, die später injiziert werden)
+    setTimeout(() => bindAnchors(lenis), 400);
+    setTimeout(() => bindAnchors(lenis), 1200);
+  }
+
+  if (reduceMotion) {
+    // Auch ohne Lenis: native Smooth-Anchor-Links
+    bindAnchors(null);
+    return;
+  }
+
+  if (typeof Lenis !== 'undefined') {
+    init();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';
+    s.defer = true;
+    s.onload = init;
+    s.onerror = () => bindAnchors(null);
+    document.head.appendChild(s);
+  }
+})();
