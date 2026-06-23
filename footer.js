@@ -212,7 +212,7 @@
     <div class="pwf-bottom">
       <nav class="pwf-legal" aria-label="Rechtliches">
         ${legalHTML}
-        <a href="https://www.pauschenwein-gruppe.at/" target="_blank" rel="noopener">Pauschenwein Gruppe</a>
+        <a href="https://www.pauschenwein-gruppe.at/" target="_blank" rel="noopener">PAUSCHENWEIN gruppe</a>
       </nav>
       <span class="pwf-name">${siteName}</span>
       <span class="pwf-credit">© ${year} · Marketing by <a href="https://temmermethode.com" target="_blank" rel="noopener"><img src="${temmerImg}" alt="Temmermethode"></a></span>
