@@ -42,6 +42,18 @@
 .pwfooter--fre .pwf-news-form button svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.6; transition: transform 0.25s; }
 .pwfooter--fre .pwf-news-form button:hover svg { transform: translateX(4px); }
 
+/* Newsletter-CTA (Typeform-Popup statt E-Mail-Feld) */
+.pwfooter--fre .pwf-news-cta {
+  display: inline-flex; align-items: center; gap: 12px; cursor: pointer;
+  background: #fff; color: #0e1213; border: 1px solid #fff; border-radius: 0;
+  font-family: inherit; font-size: 0.78rem; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 16px 26px; transition: background 0.3s ease, color 0.3s ease;
+}
+.pwfooter--fre .pwf-news-cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; transition: transform 0.35s ease; }
+.pwfooter--fre .pwf-news-cta:hover { background: transparent; color: #fff; }
+.pwfooter--fre .pwf-news-cta:hover svg { transform: translate(4px,-4px); }
+
 .pwfooter--fre .pwf-nav { display: flex; flex-direction: column; gap: 12px; }
 .pwfooter--fre .pwf-nav a { font-size: 1.35rem; font-weight: 500; color: #fff; letter-spacing: -0.01em; }
 .pwfooter--fre .pwf-nav a:hover { color: rgba(255,255,255,0.55); }
@@ -147,6 +159,8 @@
     const nlHead      = cfg.newsletterHeadline || 'Erstgespräch sichern.';
     const nlEmail     = cfg.newsletterEmail || 'office@pauschenwein-gruppe.at';
     const nlPh        = cfg.newsletterPlaceholder || 'Ihre E-Mail-Adresse';
+    const nlTypeform  = cfg.newsletterTypeform || '';   // Typeform-ID → CTA-Button statt E-Mail-Feld
+    const nlCtaLabel  = cfg.newsletterCta || 'Jetzt anfragen';
     const wordmarkHref  = cfg.wordmarkHref || (cfg.backHref || '#');
     const wordmarkLabel = cfg.wordmarkLabel || (cfg.backHref ? 'Zur Pauschenwein<br>Gruppe' : 'Nach<br>oben');
     const wordmarkImg = cfg.wordmarkImg || (CDN + '/assets/pw-wordmark.png');
@@ -176,12 +190,17 @@
     <div class="pwf-top">
       <div class="pwf-news">
         <h3>${nlHead}</h3>
+        ${nlTypeform ? `
+        <button class="pwf-news-cta" type="button" data-tf-popup="${nlTypeform}" data-tf-iframe-props="title=Anfrage" data-tf-medium="footer-cta" aria-label="${nlCtaLabel}">
+          <span>${nlCtaLabel}</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>` : `
         <form class="pwf-news-form" action="mailto:${nlEmail}" method="post" enctype="text/plain">
           <input type="email" name="email" placeholder="${nlPh}" aria-label="E-Mail-Adresse" required>
           <button type="submit" aria-label="Absenden">
             <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/></svg>
           </button>
-        </form>
+        </form>`}
       </div>
       <nav class="pwf-nav" aria-label="Footer-Navigation">${navHTML}</nav>
       <div class="pwf-social-col">${socialHTML}</div>
@@ -219,6 +238,14 @@
     </div>
   </div>
 </footer>`;
+
+    // ── Typeform-Embed-Script laden (für den Newsletter-CTA-Popup) ──
+    if (nlTypeform && !document.getElementById('pw-typeform-embed')) {
+      const tfScript = document.createElement('script');
+      tfScript.id = 'pw-typeform-embed';
+      tfScript.src = 'https://embed.typeform.com/next/embed.js';
+      document.head.appendChild(tfScript);
+    }
 
     // ── Cursor-folgende Wortmarke ──
     const link = container.querySelector('.pwf-wordmark');
