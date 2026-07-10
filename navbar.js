@@ -187,12 +187,12 @@
 
   // ───────── Menü-Datenstruktur ─────────
   const AREAS = [
-    { key: 'bau',              num: '01', label: '<b>PAUSCHENWEIN</b> <em>bau</em>',         href: 'https://pauschenwein-bau.at' },
-    { key: 'immobilien',       num: '02', label: '<b>PAUSCHENWEIN</b> <em>immobilien</em>',  href: 'https://pauschenwein-immobilien.at' },
-    { key: 'wohlfuehlzentrum', num: '03', label: '<b>PAUSCHENWEIN</b> <em>wohlfühlzentrum</em>', href: 'https://pauschenwein-wohlfuehlzentrum.at' },
-    { key: 'med',              num: '04', label: '<b>PAUSCHENWEIN</b> <em>med</em>',          href: 'https://pauschenwein-med.at' },
-    { key: 'kosmetik',         num: '05', label: '<b>PAUSCHENWEIN</b> <em>kosmetik</em>',     href: 'https://pauschenwein-kosmetik.at' },
-    { key: 'handel',           num: '06', label: '<b>PAUSCHENWEIN</b> <em>handel</em>',       href: 'https://pauschenwein-handel.at' }
+    { key: 'bau',              num: '01', label: '<b>PAUSCHENWEIN</b> <em>bau</em>',         href: 'https://www.pauschenwein-bau.at' },
+    { key: 'immobilien',       num: '02', label: '<b>PAUSCHENWEIN</b> <em>immobilien</em>',  href: 'https://www.pauschenwein-immobilien.at' },
+    { key: 'wohlfuehlzentrum', num: '03', label: '<b>PAUSCHENWEIN</b> <em>wohlfühlzentrum</em>', href: 'https://www.pauschenwein-zentrum.at' },
+    { key: 'med',              num: '04', label: '<b>PAUSCHENWEIN</b> <em>med</em>',          href: 'https://www.pauschenwein-med.at' },
+    { key: 'kosmetik',         num: '05', label: '<b>PAUSCHENWEIN</b> <em>kosmetik</em>',     href: 'https://www.pauschenwein-kosmetik.at' },
+    { key: 'handel',           num: '06', label: '<b>PAUSCHENWEIN</b> <em>handel</em>',       href: 'https://www.pauschenwein-handel.at' }
   ];
 
   // ───────── Container rendern ─────────
@@ -202,7 +202,7 @@
     const lightOnTop = cfg.lightOnTop === 'true';
     const logoHref = cfg.logoHref || '/';
     const logoSrc = cfg.logo || (CDN + '/assets/logo-white.png');
-    const immoHref = cfg.immoHref || 'https://pauschenwein-immobilien.at';
+    const immoHref = cfg.immoHref || 'https://www.pauschenwein-immobilien.at';
     // Default: KEIN Immo-Quicklink. Nur die Gruppen-Site setzt data-immo-show="true".
     const showImmo = cfg.immoShow === 'true' && active !== 'immobilien';
     const contactHref = cfg.contactHref || '#kontakt';
