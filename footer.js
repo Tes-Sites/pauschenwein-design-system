@@ -84,7 +84,7 @@
 .pwfooter--fre .pwf-social-col a:hover { color: #fff; }
 
 .pwfooter--fre .pwf-contact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 64px; max-width: 760px; }
-.pwfooter--fre .pwf-label { display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+.pwfooter--fre .pwf-label { display: block; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 12px; }
 .pwfooter--fre .pwf-contact-item a, .pwfooter--fre .pwf-contact-item span.value { font-size: 0.92rem; color: rgba(255,255,255,0.8); line-height: 1.6; display: block; }
 .pwfooter--fre .pwf-contact-item a:hover { color: #fff; }
 
@@ -116,7 +116,7 @@
 .pwfooter--fre .pwf-legal a:hover { color: #fff; }
 .pwfooter--fre .pwf-name { font-size: 0.8rem; color: rgba(255,255,255,0.6); white-space: nowrap; }
 
-.pwfooter--fre .pwf-credit { display: inline-flex; align-items: center; gap: 10px; font-size: 0.76rem; color: rgba(255,255,255,0.4); white-space: nowrap; }
+.pwfooter--fre .pwf-credit { display: inline-flex; align-items: center; gap: 10px; font-size: 0.76rem; color: rgba(255,255,255,0.58); white-space: nowrap; }
 .pwfooter--fre .pwf-credit img { height: 22px; width: auto; opacity: 0.7; transition: opacity 0.25s ease; display: inline-block; }
 .pwfooter--fre .pwf-credit a:hover img { opacity: 1; }
 
