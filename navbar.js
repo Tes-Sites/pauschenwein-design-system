@@ -36,7 +36,28 @@
 (function () {
   'use strict';
 
-  const CDN = 'https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main';
+  /* ──────────────────────────────────────────────────────────────────────
+     Basis-URL für eigene Assets (Logos, Wortmarke, Fonts, Lenis).
+     Wird aus der URL DIESES Skripts abgeleitet. Dadurch funktioniert die
+     Datei unverändert in beiden Betriebsarten:
+       • per jsDelivr geladen  → Assets kommen von jsDelivr
+       • lokal gehostet (self-hosted, DSGVO-konform, schneller)
+         → Assets kommen von der eigenen Domain
+     Überschreibbar per window.PW_DS_BASE (ohne Slash am Ende).
+     ────────────────────────────────────────────────────────────────────── */
+  const DS_FALLBACK = 'https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main';
+  const CDN = (function () {
+    if (typeof window !== 'undefined' && window.PW_DS_BASE) {
+      return String(window.PW_DS_BASE).replace(/\/+$/, '');
+    }
+    // document.currentScript ist während der Top-Level-Ausführung gesetzt
+    // (gilt auch für defer-Skripte) — deshalb hier sofort auslesen.
+    const self = document.currentScript;
+    if (self && self.src) {
+      try { return new URL('.', self.src).href.replace(/\/+$/, ''); } catch (e) {}
+    }
+    return DS_FALLBACK;
+  })();
 
   // ───────── CSS (einmalig injizieren) ─────────
   const CSS = `

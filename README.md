@@ -1,17 +1,87 @@
 # Pauschenwein Design System
 
-Shared navbar, footer, design tokens and assets for **all Pauschenwein-Gruppe websites**. Wird per [jsDelivr CDN](https://www.jsdelivr.com/) ohne Build-Step in jede Seite eingebunden.
+Shared navbar, footer, design tokens, Poppins-Fonts und Assets für **alle Pauschenwein-Gruppe-Websites**. Ohne Build-Step. Wird per `sync.sh` in jede Site kopiert und von deren eigener Domain ausgeliefert (self-hosted); die alte jsDelivr-Einbindung funktioniert weiterhin, ist aber nicht mehr der Standard — siehe unten.
 
-## Quickstart
+## ⚠️ Verbindlich seit 31.08.2026: Design-System self-hosted einbinden
 
-Im `<head>` einer Seite:
+Die Einbindung per **jsDelivr** und die Einbindung von **Google Fonts** sind
+**nicht mehr der Standard**. Beides sind Drittanbieter-Anfragen, bei denen die
+IP-Adresse jedes Besuchers an einen Dritten übertragen wird — ohne
+Einwilligung und ohne dass das in den Datenschutzerklärungen der Seiten
+abgebildet wäre. Ein Datenschutz-Check (Förderberatung Aichbauer, 24.07.2026)
+hat das für das Wohlfühlzentrum ausdrücklich als **rechtlich riskant**
+bewertet; derselbe Befund gilt für **alle** Pauschenwein-Seiten, weil alle
+dieselbe Einbindung verwenden. Dazu kostet der Cross-Origin-Roundtrip
+messbar Ladezeit (render-blockierend, extra DNS + TLS).
+
+**Deshalb gilt jetzt:** jede Site hält eine lokale Kopie des Design-Systems
+unter `assets/pw-ds/` und liefert sie von der eigenen Domain aus.
+
+### Schritt 1 — Sync (einmalig pro Site, danach zum Aktualisieren)
+
+Im Wurzelverzeichnis der Site (dort, wo `index.html` liegt):
+
+```bash
+curl -sL https://raw.githubusercontent.com/Tes-Sites/pauschenwein-design-system/main/sync.sh | bash
+```
+
+Das legt `assets/pw-ds/` an (Tokens, Fonts, Navbar, Footer, Smooth-Scroll,
+Logos, Lenis) und schreibt `assets/pw-ds/VERSION.txt` mit dem Quell-Commit.
+
+### Schritt 2 — Einbindung in der Site
 
 ```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- <head> -->
+<link rel="preload" href="/assets/pw-ds/fonts/poppins-300-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/pw-ds/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/pw-ds/fonts.css">
+<link rel="stylesheet" href="/assets/pw-ds/tokens.css">
+```
+
+```html
+<!-- Ende <body> -->
+<script src="/assets/pw-ds/navbar.js" defer></script>
+<script src="/assets/pw-ds/footer.js" defer></script>
+<script src="/assets/pw-ds/smooth-scroll.js" defer></script>
+```
+
+Die `<link rel="preconnect">` zu `fonts.googleapis.com` / `fonts.gstatic.com`
+und der Google-Fonts-`<link>` sind dabei **zu entfernen**.
+
+`navbar.js`, `footer.js` und `smooth-scroll.js` leiten ihre Basis-URL
+**automatisch aus ihrer eigenen Skript-URL** ab (`document.currentScript`).
+Logo, Wortmarke, Temmer-Signet und Lenis werden dadurch ebenfalls lokal
+geladen — ohne jede zusätzliche Konfiguration. Notfalls lässt sich die
+Basis mit `window.PW_DS_BASE = '/assets/pw-ds'` (vor den Skripten) erzwingen.
+
+### Aktualisieren
+
+`sync.sh` erneut ausführen und committen. Der Ordner `assets/pw-ds/` wird
+**nie manuell editiert** — Änderungen gehören in dieses Repo, damit alle
+Seiten davon profitieren.
+
+### Cache
+
+Weil die Dateien jetzt von der eigenen Domain kommen, gehören sie in die
+`_headers` der Site mit langer Cache-Zeit (der Ordnername wechselt beim
+Update nicht, deshalb **revalidierend**, nicht `immutable`):
+
+```
+/assets/pw-ds/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+```
+
+### jsDelivr weiterhin möglich (Legacy)
+
+Die alte Einbindung funktioniert unverändert weiter — die Skripte erkennen,
+dass sie von jsDelivr kommen, und laden ihre Assets dann von dort. Neue Seiten
+sollen sie aber nicht mehr verwenden.
+
+```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Tes-Sites/pauschenwein-design-system@main/tokens.css">
 ```
+
+## Quickstart (Markup)
 
 Am Anfang des `<body>` (für die Navbar) — **Standard-Subsite** mit eigenen Menüpunkten:
 
@@ -55,6 +125,22 @@ Am Ende des `<body>` (für den Footer + Smooth-Scroll):
 > **Wichtig:** `smooth-scroll.js` ist der **verbindliche Standard** für alle Pauschenwein-Seiten. Bitte nicht weglassen — die Sites sollen sich konsistent anfühlen. Wenn eine Seite bereits eine eigene Lenis-Initialisierung hat, ist diese ersatzlos zu entfernen und durch das Design-System-Skript zu ersetzen. Auch die CSS-Regel `html { scroll-behavior: smooth }` ist zu entfernen — Lenis übernimmt das.
 
 ## Komponenten
+
+### `fonts.css` + `fonts/` — Poppins, lokal gehostet
+Poppins in 300/400/500/600/700, Subsets `latin` + `latin-ext`, als `woff2`
+(je ~8 KB, gesamt 80 KB). `font-display: swap`. Ersetzt die Google-Fonts-
+Einbindung vollständig — **keine** Anfrage mehr an `fonts.googleapis.com`
+oder `fonts.gstatic.com`. Die `@font-face`-Regeln verweisen relativ auf
+`./fonts/…`, dadurch funktioniert die Datei an jedem Ort, an den `sync.sh`
+sie kopiert.
+
+Kritische Schnitte (300 für Body, 700 für Hero-H1) sollten in der Site
+per `<link rel="preload" … crossorigin>` vorgeladen werden.
+
+### `vendor/lenis-1.1.13.min.js` — Lenis, lokal
+Wird von `smooth-scroll.js` geladen. Vorher kam Lenis von jsDelivr;
+jetzt aus dem Design-System selbst, mit jsDelivr nur noch als Fallback.
+
 
 ### `tokens.css` — Brand-Variablen + Base-Reset + Typo-Primitive
 

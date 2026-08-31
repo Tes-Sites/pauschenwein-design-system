@@ -13,6 +13,22 @@
   if (window.__pwSmoothScrollInit) return;
   window.__pwSmoothScrollInit = true;
 
+  /* Lenis wird aus dem Design-System selbst ausgeliefert (siehe vendor/).
+     Die Basis-URL wird aus der URL DIESES Skripts abgeleitet: lokal gehostet
+     entsteht damit keine Drittanbieter-Anfrage (DSGVO), per jsDelivr geladen
+     verhält sich alles wie vorher. Überschreibbar per window.PW_DS_BASE. */
+  const LENIS_CDN = 'https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';
+  const LENIS_LOCAL = (function () {
+    if (window.PW_DS_BASE) {
+      return String(window.PW_DS_BASE).replace(/\/+$/, '') + '/vendor/lenis-1.1.13.min.js';
+    }
+    const self = document.currentScript;
+    if (self && self.src) {
+      try { return new URL('./vendor/lenis-1.1.13.min.js', self.src).href; } catch (e) {}
+    }
+    return LENIS_CDN;
+  })();
+
   // 1) Lenis-Pflicht-CSS — damit nichts gegen Lenis kämpft
   const css = `
     html.lenis, html.lenis body { height: auto; }
@@ -78,10 +94,20 @@
     init();
   } else {
     const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';
+    s.src = LENIS_LOCAL;
     s.defer = true;
     s.onload = init;
-    s.onerror = () => bindAnchors(null);
+    // Fällt auf jsDelivr zurück, falls die lokale Kopie fehlt (z. B. Site noch
+    // nicht gesynct). Schlägt auch das fehl: native Anchor-Links.
+    s.onerror = () => {
+      if (s.src === LENIS_CDN) { bindAnchors(null); return; }
+      const f = document.createElement('script');
+      f.src = LENIS_CDN;
+      f.defer = true;
+      f.onload = init;
+      f.onerror = () => bindAnchors(null);
+      document.head.appendChild(f);
+    };
     document.head.appendChild(s);
   }
 })();
